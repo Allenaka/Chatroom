@@ -6,8 +6,170 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="./css/bootstrap.css">
     <title>Document</title>
+    <style>
+    body {
+        margin: 0;
+        padding: 0;
+        background-image: linear-gradient(125deg,#2c3e50,#27ae60,#2980b9,#e74c3c,#8e44ad);
+        background-size: 400%;
+        animation: bganimation 15s infinite;
+        height: 100vh;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    @keyframes bganimation {
+        0% {
+            background-position: 0% 50%;
+        }
+        50% {
+            background-position: 100% 50%;
+        }
+        100% {
+            background-position: 0% 50%;
+        }
+    }
+    .main {
+        width: 400px;
+        background-color: #fff;
+        padding: 20px 30px;
+        border-radius: 10px;
+    }
+    .line {
+        display: flex;
+        flex-wrap: nowrap;
+        justify-content: space-evenly;
+        align-items: center;
+    }
+    .line::after {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background-color: #000;
+    }
+    .line::before {
+        content: '';
+        flex: 1;
+        height: 1px;
+        background-color: #000;
+    }
+    </style>
 </head>
 <body>
-    <h1>注册页面</h1>
+    <div id="app">
+        <div class="main container">
+            <h3 class="line">注册</h3>
+            <form>
+                <div class="form-group">
+                  <label for="inputUsername">用户名</label>
+                  <input type="text" class="form-control" id="inputUsername" placeholder="用户名" required>
+                </div>
+                <div class="form-group">
+                  <label for="inputPassword1">密码</label>
+                  <input type="password" class="form-control" id="inputPassword1" placeholder="密码" value="zzj12345">
+                </div>
+                <div class="form-group">
+                    <label for="inputPassword2">确认密码</label>
+                    <input type="password" class="form-control" id="inputPassword2" placeholder="确认密码" value="zzj12345">
+                  </div>
+                <button type="button" class="btn btn-success" id="btnRegister">注册</button>
+                <a class="btn btn-primary">去登陆</a>
+              </form>
+        </div>
+    </div>
+    <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">提示</h4>
+            </div>
+            <div class="modal-body">
+              <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-primary" data-dismiss="modal">确定</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+      </div><!-- /.modal -->
+      
+    <script src="./lib/jquery-3.4.1.min.js"></script>
+    <script src="./lib/bootstrap.js"></script>
+    <script src="./js/tools.js"></script>
+    <script>
+    (function() {
+        let username = $('#inputUsername');
+        let password1 = $('#inputPassword1');
+        let password2 = $('#inputPassword2');
+        let {strage} = Tool;
+        let modal = $('.modal');
+        let register = $('#btnRegister');
+        function showModal(content) {
+            modal.find('.modal-body').html(content).end().modal();
+        }
+        function checkInput(dom, fn) {        
+            if (dom.val()) {
+                let result = fn(dom.val());
+                if (fn ===strage.repeat) {
+                    result = fn(dom.val(), password1.val());
+                } 
+                if (result) {
+                    dom.val('');
+                    return showModal(result);
+                }
+            }  
+        }
+        // 校验用户名
+        username.blur(() => {
+            checkInput(username, strage.username)
+        });
+        username.focus(() => {
+            username.css('border-color', '#ccc')
+        });
+        // 校验密码
+        password1.blur(() => {
+            checkInput(password1, strage.password)
+        });
+        password1.focus(() => {
+            password1.css('border-color', '#ccc')
+        });
+        // 确认密码
+        password2.blur(() => {
+            checkInput(password2, strage.repeat)
+        });
+        password2.focus(() => {
+            password2.css('border-color', '#ccc')
+        });
+        // 注册
+        register.click(e => {
+            if (username.val() && password1.val() && password2.val()) {
+                $.post('/regist', {
+                    username: username.val(),
+                    password: password1.val()
+                })
+                .done(data => {
+                    if (data.errno === 0) {
+                        // 进入登陆页面
+                        location.href = '/login.html';
+                    } else {
+                        showModal(data.msg);
+                    }
+                })
+                .fail(err => showModal(err));
+            }else {
+                if (!username.val()) {
+                    username.css('border-color', 'red')
+                }
+                if (!password1.val()){
+                    password1.css('border-color', 'red')
+                }
+                if (!password2.val()){
+                    password2.css('border-color', 'red')
+                }
+            }  
+        })
+    })();
+    </script>
 </body>
 </html>
