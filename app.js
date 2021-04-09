@@ -7,7 +7,7 @@ const path = require('path');
 const DataBase = require('./db');
 // 创建数据库
 const db = new DataBase('mongodb://localhost:27017', 'chatroom', 'user')
-console.log(db)
+
 // 处理post请求
 const bodyParser = require('body-parser');
 
@@ -96,6 +96,26 @@ app.post('/regist', async (req, res) => {
         return res.json({errno: 1, msg: '创建用户目录失败'})
     }
 })
-
+// 检测用户名接口
+app.get('/check/user', (req, res) => {
+    let { username } = req.query;
+    // 在数据库中查询
+    db.collection('user')
+        .findOne({ username })
+        .then(
+            // 找到了，不能注册
+            () => res.json({errno: 1, msg: '该用户名已被注册'}),
+            // 没找到
+            err => {
+                // 数据库中没有
+                if (err.errno === 9) {
+                    res.json({errno: 0, msg: '可以注册'});
+                } else {
+                    // 查询出错
+                    res.json({errno: 2, msg: err.msg})
+                }
+            }
+        )
+})
 // 启动应用
 app.listen(3000, () => console.log('sever listen at 3000'))

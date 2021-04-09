@@ -3,12 +3,12 @@ let Tool = {
         // 校验用户名
         username(str) {
             if (!/^[\u4E00-\u9FA5\w]{2,8}$/.test(str)) {
-                return '用户名是4-8位的中文字母数字下划线'
+                return '用户名是2-8位的中文字母数字下划线'
             }
         },
         // 校验密码
         password(str) {
-            if (!/^[a-zA-Z](\w|.){6,13}$/.test(str)) {
+            if (!/^[a-zA-Z]\w{5,12}$/.test(str)) {
                 return '密码是6-13位以字母开头'
             }
         },

@@ -73,7 +73,7 @@
                     <input type="password" class="form-control" id="inputPassword2" placeholder="确认密码" value="zzj12345">
                   </div>
                 <button type="button" class="btn btn-success" id="btnRegister">注册</button>
-                <a class="btn btn-primary">去登陆</a>
+                <a class="btn btn-primary" href="./login.html">去登录</a>
               </form>
         </div>
     </div>
@@ -118,11 +118,24 @@
                     dom.val('');
                     return showModal(result);
                 }
-            }  
+                return true;
+            } 
+            return false; 
         }
         // 校验用户名
-        username.blur(() => {
-            checkInput(username, strage.username)
+        username.blur((e) => {
+            if (checkInput(username, strage.username)) {
+                // 发送请求,检测用户名
+                $.get('/check/user?username=' + e.target.value)
+                .done(data => {
+                    if (data.errno === 1) {
+                        showModal(data.msg);
+                        e.target.value = '';
+                    }
+                })
+                .fail(err => console.log(err));
+            }
+            
         });
         username.focus(() => {
             username.css('border-color', '#ccc')

@@ -7,10 +7,10 @@ const MESSAGE = {
     collectionInsertNoData: { errno: 3, msg: '数据库没有插入数据' },
     collectionDeleteError: { errno: 4, msg: '数据库删除错误' },
     collectionDeleteNoData: { errno: 5, msg: '数据库没有删除数据'},
-    collectionUpdateError: { errno: 5, msg: '数据库更新错误'},
-    collectionUpdateNoData: { errno: 5, msg: '数据库没有更新数据'},
-    collectionFindError: { errno: 5, msg: '数据库查找错误'},
-    collectionFindNoData: { errno: 5, msg: '数据库没有查找到数据'}
+    collectionUpdateError: { errno: 6, msg: '数据库更新错误'},
+    collectionUpdateNoData: { errno: 7, msg: '数据库没有更新数据'},
+    collectionFindError: { errno: 8, msg: '数据库查找错误'},
+    collectionFindNoData: { errno: 9, msg: '数据库没有查找到数据'}
 }
 
 // 面向对象
@@ -151,8 +151,8 @@ class DataBase {
                             .findOne(obj, (err, data) => {
                                 if (err) {
                                     reject(MESSAGE.collectionFindError);
-                                } else if (data.result.n > 0) {
-                                    resolve(data.result);
+                                } else if (data) {
+                                    resolve(data);
                                 } else {
                                     reject(MESSAGE.collectionFindNoData);
                                 }
