@@ -29,7 +29,7 @@ class DataBase {
     // 连接数据库
     connect() {
         return new Promise((resolve, reject) => {
-            MongoClient.connect(this.address, {useNewUrlParser: true}, (err, client) => {
+            MongoClient.connect(this.address, {useNewUrlParser: true, useUnifiedTopology: true}, (err, client) => {
                 if (err) {
                     reject(MESSAGE.databaseError);
                 } else {

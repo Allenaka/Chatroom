@@ -112,8 +112,17 @@
                     username,
                     password
                 })
-                .done()
-                .fail()
+                .done(data => {
+                    if (data.errno === 0) {
+                        // 存储token
+                        localStorage.token = data.data;
+                        // 进入首页
+                        location.href = './index.html'
+                    } else {
+                        showModal(data.msg);
+                    }
+                })
+                .fail(err => showModal(err))
             } else if (!username) {
                 showModal('请输入用户名！');
             } else if (!password) {

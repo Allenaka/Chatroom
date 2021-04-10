@@ -3,6 +3,8 @@ const express = require('express');
 const fs = require('fs');
 const path = require('path');
 
+// 引入jwt
+const jwt = require('jsonwebtoken');
 // 引入数据库
 const DataBase = require('./db');
 // 创建数据库
@@ -15,10 +17,14 @@ const bodyParser = require('body-parser');
 const app = express();
 // 根路径
 const root = process.cwd();
+// 定义加密解密字符串
+const TOKEN = 'zaozijintianbuchizao';
+
 // 静态化
 app.use(express.static('./web/'))
 // post请求体
 app.use(bodyParser.urlencoded({ extended: false }));
+
 
 // 注册接口
 app.post('/regist', async (req, res) => {
@@ -115,6 +121,25 @@ app.get('/check/user', (req, res) => {
                     res.json({errno: 2, msg: err.msg})
                 }
             }
+        )
+})
+// 登录接口
+app.post('/login', (req,res) => {
+    // 查询数据库
+    db.collection('user')
+        .findOne(req.body)
+        .then(
+            ({username, url}) => {
+                // 创建token
+                jwt.sign({username, url}, TOKEN, (err, data) => {
+                    if (err) {
+                        res.json({errno: 2, msg: '登陆失败'});
+                    } else {
+                        res.json({errno: 0, data })
+                    }
+                })
+            },
+            err => res.json({errno: 1, msg: '用户名或密码错误'})
         )
 })
 // 启动应用
