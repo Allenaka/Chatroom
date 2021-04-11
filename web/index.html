@@ -4,9 +4,114 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="./css/bootstrap.css">
     <title>Document</title>
+    <style>
+    html, 
+    body {
+        background-color: #165d8f;
+    }
+    #app {
+        padding: 35px 0;
+    }
+    .round {
+        border-radius: 5px;
+    }
+    .box {
+        padding: 10px 15px;
+        background-color: #fff;
+    }
+    .space-bottom {
+        margin-bottom: 10px;
+    }
+    .main {
+        height: 500px;
+        background-color: #fff;
+    }
+    #app aside {
+        padding-left: 30px;
+    }
+    #userinfo > div {
+        display: inline-block;
+    }
+    #userinfo #photo {
+        width: 46px;
+        height: 46px;
+        background-size: 46px;
+    }
+    #userinfo .box {
+        margin-left: 10px;
+    }
+    #userinfo p, 
+    #userinfo a {
+        color: #fff;
+        font-size: 16px;
+    }
+    </style>
 </head>
 <body>
-    <h1>主页面</h1>
+    <div id="app">
+        <div class="container">
+            <div class="main col-xs-8 round box">
+
+            </div>
+            <aside class="col-xs-4">
+                <div id="userinfo" class="space-bottom">
+                    <div id="photo"></div>
+                    <div>
+                        <p id="username">zao</p>
+                        <a href="./login.html">登出</a>
+                    </div>
+                </div>
+                <div id="search" class="round box">
+                    <div class="input-group">
+                        <input type="text" name="" id="" class="form-control">
+                        <span class="input-group-btn">
+                            <button class="btn btn-default" type="button">搜索</button>
+                          </span>
+                    </div>
+                    <div>
+                        <label for="">
+                            <input type="checkbox" name="" id="">
+                            显示
+                        </label>
+                    </div>
+                    <div>
+                        <label for="">
+                            <input type="checkbox" name="" id="">
+                            显示房间成员
+                        </label>
+                    </div>                  
+                </div>
+            </aside>
+        </div>
+    </div>
+
+    <script src="./lib/jquery-3.4.1.min.js"></script>
+    <script src="./lib/bootstrap.js"></script>
+    <script>
+    (function() {
+        // 获取用户信息，若没有token，进入登陆页面
+        let token = localStorage.getItem('token');
+        if (!token) {
+            location.href = './login.html';
+        } 
+        // 获取用户信息
+        $.get(`/userinfo?token=${token}`)
+        .done(
+            data => {
+                if (data.errno === 0) {
+                    let $userinfo = $('#userinfo');
+                    $userinfo.find('#photo').css('background-image', 'url(' + data.data.url + ')').end()
+                        .find('#username').html(data.data.username)
+                }
+            },
+            err => console.log(err)
+        )
+        .fail(
+            err => console.log(err)
+        )
+    })();
+    </script>
 </body>
 </html>

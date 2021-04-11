@@ -21,7 +21,8 @@ const root = process.cwd();
 const TOKEN = 'zaozijintianbuchizao';
 
 // 静态化
-app.use(express.static('./web/'))
+app.use(express.static('./web/'));
+app.use('/upload/', express.static('./upload/'));
 // post请求体
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -34,7 +35,7 @@ app.post('/regist', async (req, res) => {
     // 存储用户头像的目录
     let headDir = path.join('/upload', username, '_head');
     // 头像文件路径
-    let filePath = path.join(headDir, 'head_default.svg');
+    let filePath = path.join(headDir, 'head_default.svg').replace(/\\/g, '/');
     // 创建头像目录
     let result = await new Promise((resolve, reject) => {
         fs.mkdir(path.join(root, userDir), err => {
@@ -142,5 +143,17 @@ app.post('/login', (req,res) => {
             err => res.json({errno: 1, msg: '用户名或密码错误'})
         )
 })
+// 用户信息接口
+app.get('/userinfo', (req, res) => {
+    // 校验token
+    jwt.verify(req.query.token, TOKEN, (err, data) => {
+        if (err) {
+            res.json({errno: 1, msg: '没有该用户信息'});
+        } else {
+            res.json({errno: 0, data});
+        }
+    })
+})
+
 // 启动应用
 app.listen(3000, () => console.log('sever listen at 3000'))
