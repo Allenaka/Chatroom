@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="zh-cn">
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
@@ -10,6 +10,9 @@
     html, 
     body {
         background-color: #165d8f;
+    }
+    ul {
+        padding: 0;
     }
     #app {
         padding: 35px 0;
@@ -24,6 +27,18 @@
     .space-bottom {
         margin-bottom: 10px;
     }
+    .space-left {
+        margin-left: 10px;
+    }
+    .space-right {
+        margin-right: 10px;
+    }
+    .space-top {
+        margin-top: 10px;
+    }
+    .show {
+        display: block;
+    }
     .main {
         height: 500px;
         background-color: #fff;
@@ -34,56 +49,103 @@
     #userinfo > div {
         display: inline-block;
     }
+    #userinfo > div:nth-of-type(2) {
+        vertical-align: middle;
+    }
     #userinfo #photo {
         width: 46px;
         height: 46px;
         background-size: 46px;
-    }
-    #userinfo .box {
-        margin-left: 10px;
+        vertical-align: middle;
     }
     #userinfo p, 
     #userinfo a {
         color: #fff;
+        margin-bottom: 0;
+    }
+    .topbar {
+        background-color: #f2f2f2;
+        color: #777;
         font-size: 16px;
+        border-radius: 10px 10px 0 0;
+        margin: 0 -15px;
+    }
+    .room-list {
+        margin: 0 -15px;
+        font-size: 16px;
+    }
+    .room-list .item {
+        display: flex;
+        align-items: center;
+        flex-wrap: wrap;
+    }
+    .room-list .item > div {
+        flex: 1;
+        flex-basis: 30%;
+    }
+    .room-list .item #members {
+        display: none;
     }
     </style>
 </head>
 <body>
     <div id="app">
         <div class="container">
-            <div class="main col-xs-8 round box">
-
+            <div class="row">
+                <div class="main col-xs-8 round">
+                    <div class="topbar box">
+                        <span class="btn btn-default">创建房间</span>
+                        <span>11</span> rooms -
+                        <span>112</span> users
+                        <span class="btn text-info"><strong>刷新</strong></span>
+                    </div>
+                    <div class="room-list">
+                        <ul>
+                            <li class="item box">
+                                <div id="name">欢迎光临</div>
+                                <div id="owner">枣子君</div>
+                                <div id="status">1/20</div>
+                                <div id="members"></div>
+                            </li>
+                            <li class="item box">
+                                <div id="name">欢迎光临</div>
+                                <div id="owner">枣子君</div>
+                                <div id="status">1/20</div>
+                                <div id="members"></div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+                <aside class="col-xs-4">
+                    <div id="userinfo" class="space-bottom">
+                        <div id="photo" class="space-right"></div>
+                        <div>
+                            <p id="username">username</p>
+                            <a href="./login.html">登出</a>
+                        </div>
+                    </div>
+                    <div id="search" class="round box">
+                        <div class="input-group">
+                            <input type="text" name="" id="" class="form-control">
+                            <span class="input-group-btn">
+                                <button class="btn btn-default" type="button">搜索</button>
+                              </span>
+                        </div>
+                        <div>
+                            <label for="">
+                                <input type="checkbox" name="" id="">
+                                显示
+                            </label>
+                        </div>
+                        <div>
+                            <label for="">
+                                <input type="checkbox" name="" id="">
+                                显示房间成员
+                            </label>
+                        </div>                  
+                    </div>
+                </aside>
             </div>
-            <aside class="col-xs-4">
-                <div id="userinfo" class="space-bottom">
-                    <div id="photo"></div>
-                    <div>
-                        <p id="username">zao</p>
-                        <a href="./login.html">登出</a>
-                    </div>
-                </div>
-                <div id="search" class="round box">
-                    <div class="input-group">
-                        <input type="text" name="" id="" class="form-control">
-                        <span class="input-group-btn">
-                            <button class="btn btn-default" type="button">搜索</button>
-                          </span>
-                    </div>
-                    <div>
-                        <label for="">
-                            <input type="checkbox" name="" id="">
-                            显示
-                        </label>
-                    </div>
-                    <div>
-                        <label for="">
-                            <input type="checkbox" name="" id="">
-                            显示房间成员
-                        </label>
-                    </div>                  
-                </div>
-            </aside>
         </div>
     </div>
 
