@@ -2,6 +2,27 @@
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+// 文件类型
+const MINE_TYPES = {
+    '.html':    'text/html',
+    '.xml':     'text/xml',
+    '.txt':     'text/plain',
+    '.css':     'text/css',
+    '.js':       'text/javascript',
+    '.json':     'text/json',
+    '.pdf':      'application/json',
+    '.swf':      'application/x-shockwave-flash',
+    '.svg':      'image/svg+xml',
+    '.tiff':     'image/tiff',
+    '.png':      'image/png',
+    '.gif':      'image/gif',
+    '.jpg':      'image/jpeg',
+    '.jpeg':     'image/jpeg',
+    '.wav':      'audio/x-wav',
+    '.wma':      'audio/x-ms-wma',
+    '.wmv':      'video/x-ms-wmv',
+    '.woff2':    'application/font-woff2'
+};
 
 // 引入jwt
 const jwt = require('jsonwebtoken');
@@ -23,6 +44,7 @@ const TOKEN = 'zaozijintianbuchizao';
 // 静态化
 app.use(express.static('./web/'));
 app.use('/upload/', express.static('./upload/'));
+
 // post请求体
 app.use(bodyParser.urlencoded({ extended: false }));
 
@@ -143,7 +165,7 @@ app.post('/login', (req,res) => {
             err => res.json({errno: 1, msg: '用户名或密码错误'})
         )
 })
-// 用户信息接口
+// 获取用户信息接口
 app.get('/userinfo', (req, res) => {
     // 校验token
     jwt.verify(req.query.token, TOKEN, (err, data) => {
@@ -154,6 +176,38 @@ app.get('/userinfo', (req, res) => {
         }
     })
 })
-
+// 创房接口
+app.post('/create_room', (req, res) => {
+    let {username, roomName, roomDisc, memberNum} = req.body;
+    // 房间目录
+    // let roomDir = path.join('/room', roomId)
+    db.collection('room')
+        .insertOne({username, roomName, roomDisc, memberNum})
+        .then(
+            data => res.json({errno: 0, msg: '创建成功', roomId: data.insertedId}),
+            err => res.json(err)
+        )
+})
+// 获取房间信息接口
+app.get('/room', async (req, res) => {
+    console.log(req.query)
+    let filePath = path.join(root, './web/room.html');
+    let extname = path.extname(filePath)
+    let result = await new Promise((resolve, reject) => {
+        fs.readFile(filePath, (err, data) => {
+            if (err) {
+                reject({n: 1, data: err})
+            } else {
+                resolve({n: 0, data})
+            }
+        })
+    })
+    if (result.n === 0) {
+        res.setHeader('Content-Type', MINE_TYPES[extname] + ';charset=utf-8')
+        res.end(result.data)
+    } else {
+        res.json({errno: 1, msg: result.data});
+    }
+})
 // 启动应用
 app.listen(3000, () => console.log('sever listen at 3000'))

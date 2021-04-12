@@ -10,6 +10,17 @@
     html, 
     body {
         background-color: #165d8f;
+        height: 1000px;
+    }
+    body::-webkit-scrollbar { 
+        width:5px;
+    }
+    body::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 20px;
+    }
+    body::-webkit-scrollbar-thumb:hover {
+        background: #f2f2f2;
     }
     ul {
         padding: 0;
@@ -94,7 +105,7 @@
             <div class="row">
                 <div class="main col-xs-8 round">
                     <div class="topbar box">
-                        <span class="btn btn-default">创建房间</span>
+                        <span class="btn btn-default" id="createRoom">创建房间</span>
                         <span>11</span> rooms -
                         <span>112</span> users
                         <span class="btn text-info"><strong>刷新</strong></span>
@@ -149,10 +160,69 @@
         </div>
     </div>
 
+    <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">创建房间</h4>
+            </div>
+            <div class="modal-body">
+                <form>
+                    <div class="form-group">
+                        <label for="">房间名称</label>
+                        <input type="text" class="form-control" id="roomName" data-toggle="popover" data-placement="top" data-content="房间名不能为空">  
+                    </div>
+                    <div class="form-group">
+                        <label for="">房间描述</label>
+                        <input type="text" class="form-control" id="roomDisc">
+                    </div>
+                    <div class="form-group">
+                        <label for="">房间人数</label>
+                        <input list="number" class="form-control" id="memberNum" data-toggle="popover" data-placement="top" data-content="请选择最大成员数">
+                        <datalist id="number">
+                            <option value="2"></option>
+                            <option value="3"></option>
+                            <option value="4"></option>
+                            <option value="5"></option>
+                            <option value="6"></option>
+                            <option value="7"></option>
+                            <option value="8"></option>
+                            <option value="9"></option>
+                            <option value="10"></option>
+                            <option value="11"></option>
+                            <option value="12"></option>
+                            <option value="13"></option>
+                            <option value="14"></option>
+                            <option value="15"></option>
+                            <option value="16"></option>
+                            <option value="17"></option>
+                            <option value="18"></option>
+                            <option value="19"></option>
+                            <option value="20"></option>
+                        </datalist>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary" id="btnCreate">创建</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     <script src="./lib/jquery-3.4.1.min.js"></script>
     <script src="./lib/bootstrap.js"></script>
     <script>
     (function() {
+        let username;
+        let modal = $('.modal');
+        function showModal() {
+            modal.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+        }
         // 获取用户信息，若没有token，进入登陆页面
         let token = localStorage.getItem('token');
         if (!token) {
@@ -164,8 +234,9 @@
             data => {
                 if (data.errno === 0) {
                     let $userinfo = $('#userinfo');
+                    username = data.data.username;
                     $userinfo.find('#photo').css('background-image', 'url(' + data.data.url + ')').end()
-                        .find('#username').html(data.data.username)
+                        .find('#username').html(username);     
                 }
             },
             err => console.log(err)
@@ -173,6 +244,71 @@
         .fail(
             err => console.log(err)
         )
+
+        // 创建房间
+        let $creatRoom = $('#createRoom');
+        let $btnCreate = $('#btnCreate');
+        let $roomName = $('#roomName');
+        let $roomDisc = $('#roomDisc');
+        let $memberNum = $('#memberNum');
+
+        $creatRoom.click(e => {
+            showModal();
+            // 初始化
+            $('[data-toggle="popover"]').popover('destroy');
+            $roomName.val("")
+            $roomDisc.val("")
+            $memberNum.val("")
+        })
+        $btnCreate.click(e => {
+
+            let roomName = $roomName.val();
+            let roomDisc = $roomDisc.val();
+            let memberNum = $memberNum.val();
+            
+            if (!roomName) {
+                $roomName.css('border-color', 'red')
+                $roomName.popover('show');
+                $('.popover').css({
+                    'background-color': 'red',
+                    'color': '#fff'
+                })
+                $roomName.focus(() => {
+                    $roomName.popover('destroy');
+                    $roomName.css('border-color', '#ccc')
+                })
+            } 
+            if (!memberNum) {
+                $memberNum.css('border-color', 'red')
+                $memberNum.popover('show');
+                $('.popover').css({
+                    'background-color': 'red',
+                    'color': '#fff'
+                })
+                $memberNum.focus(() => {
+                    $memberNum.popover('destroy');
+                    $memberNum.css('border-color', '#ccc')
+                })
+            }
+            if (roomName && memberNum) {
+                // 发送创房请求
+                $.post('create_room', {
+                    roomName,
+                    roomDisc,
+                    memberNum,
+                    username,
+                })
+                .done(
+                    data => {
+                        location.href = `/room/?id=${data.roomId}`
+                    },
+                    err => console.log(err)
+                )
+                .fail(
+                    err => console.log(err)
+                )
+            }
+        })
     })();
     </script>
 </body>
