@@ -4,9 +4,105 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/bootstrap.css">
     <title>Document</title>
+    <style>
+    body {
+        background-color: #165d8f;
+        padding-top: 30px;
+    }
+    body::-webkit-scrollbar { 
+        width:5px;
+    }
+    body::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 20px;
+    }
+    body::-webkit-scrollbar-thumb:hover {
+        background: #f2f2f2;
+    }
+    .form-control:focus {
+        box-shadow:none;
+    }
+    .content .panel {
+        padding: 0;
+    }
+    .talks .panel-body{
+        height: 500px;
+    }
+    .message {
+        background-color: #fff;
+        border-radius: 5px
+    }
+    .message .input-group-addon {
+        font-size: 30px;
+    }
+    .message textarea {
+        height: 150px;
+        border: none;
+        resize: none;
+        background-color: transparent;
+    }
+    #emojiList {
+        display: none;
+        height: 100px;
+        background-color: #fff;
+        padding: 0 10px;
+        user-select: none;
+    }
+    #emojiList .item {
+        cursor: pointer;
+    }
+    </style>
 </head>
 <body>
-    <h1>room</h1>
+    <div id="app" class="container">
+        <div class="row">
+            <div class="content">
+                <div class="user-list panel panel-default col-xs-3">
+                    <div class="panel-heading">用户列表</div>
+                    <div class="panel-body">123213</div>
+                </div>
+                <div class="talks panel panel-default col-xs-9">
+                    <div class="panel-heading">发言列表</div>
+                    <div class="panel-body"></div>
+                </div>
+            </div>
+            <div class="input-group message">
+                <div class="toolbar ">
+                    <a class="btn btn-emoji">
+                        <span class="glyphicon glyphicon-list"></span>
+                    </a>     
+                </div>
+                <div id="emojiList">
+                    <span class="item">😀</span>
+                    <span class="item">😁</span>
+                </div>
+                <textarea class="form-control" id="textInput"></textarea>
+                <span class="input-group-addon">post</span>
+            </div>
+        </div>
+    </div>
+    
+    <script src="/lib/jquery-3.4.1.min.js"></script>
+    <script src="/lib/bootstrap.js"></script>
+
+    <script>
+    (function() {
+        let $emojiList = $('#emojiList');
+        let $emoji = $emojiList.find('.item');
+        
+        $('.btn-emoji').click(() => {
+            $emojiList.toggle()
+        })
+        Array.from($emoji).forEach(item => {
+            console.log(Array.prototype.toString.call(item))
+            item.onclick = function() {
+                let $textInput = $('#textInput');
+                $textInput.val($textInput.val() + item.innerHTML)
+            }
+        });
+    })()
+    </script>
 </body>
 </html>
