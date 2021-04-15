@@ -1,7 +1,8 @@
-// 引入express、fs、path
+// 引入express、fs、path、http
 const express = require('express');
 const fs = require('fs');
 const path = require('path');
+const http = require('http');
 // 文件类型
 const MINE_TYPES = {
     '.html':    'text/html',
@@ -26,6 +27,8 @@ const MINE_TYPES = {
 
 // 引入jwt
 const jwt = require('jsonwebtoken');
+// 引入socket
+const socket = require('socket.io')
 // 引入数据库
 const DataBase = require('./db');
 // 创建数据库
@@ -189,25 +192,71 @@ app.post('/create_room', (req, res) => {
         )
 })
 // 获取房间信息接口
-app.get('/room', async (req, res) => {
-    console.log(req.query)
-    let filePath = path.join(root, './web/room.html');
-    let extname = path.extname(filePath)
-    let result = await new Promise((resolve, reject) => {
-        fs.readFile(filePath, (err, data) => {
-            if (err) {
-                reject({n: 1, data: err})
-            } else {
-                resolve({n: 0, data})
+app.get('/roominfo', async (req, res) => {
+    let roomId = req.query.id;
+    db.collection('room')
+        .findOne({ _id: roomId })
+        .then(
+            // 找到了
+            data => {
+                res.json({errno: 0, data});
+            },
+            err => {
+                // 数据库中没有
+                if (err.errno === 9) {
+                    res.json({errno: 1, msg: '未查找到该房间'});
+                } else {
+                    // 查询出错
+                    res.json({errno: 2, msg: err.msg});
+                }
             }
-        })
+        )
+    // let filePath = path.join(root, './web/room.html');
+    // let extname = path.extname(filePath)
+    // let result = await new Promise((resolve, reject) => {
+    //     fs.readFile(filePath, (err, data) => {
+    //         if (err) {
+    //             reject({n: 1, data: err})
+    //         } else {
+    //             resolve({n: 0, data})
+    //         }
+    //     })
+    // })
+    // if (result.n === 0) {
+    //     res.setHeader('Content-Type', MINE_TYPES[extname] + ';charset=utf-8')
+    //     res.end(result.data)
+    // } else {
+    //     res.json({errno: 1, msg: result.data});
+    // }
+})
+// 获取房间列表
+app.get('/room_list', (req, res) => {
+    db.collection('room')
+        .findMany()
+        .then(
+            data => {
+                res.json({errno: 0, data})
+            },
+            err => res.json({errno: 1, msg: err.msg})
+        )
+})
+let server = http.createServer(app);
+
+// 添加socket协议
+let io = socket(server);
+
+// 用户列表
+let users = [];
+
+// 监听客户端连接成功
+io.on('connection', client => {
+    // 监听房间成员
+    client.on('newMember', username => {
+        // 存储用户
+        users.push([username, client]);
+        // 广播消息
+        io.emit('userEnter', user.map(item => item[0]))
     })
-    if (result.n === 0) {
-        res.setHeader('Content-Type', MINE_TYPES[extname] + ';charset=utf-8')
-        res.end(result.data)
-    } else {
-        res.json({errno: 1, msg: result.data});
-    }
 })
 // 启动应用
-app.listen(3000, () => console.log('sever listen at 3000'))
+server.listen(3000, () => console.log('sever listen at 3000'))
