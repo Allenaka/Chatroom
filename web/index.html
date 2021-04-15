@@ -89,6 +89,10 @@
         display: flex;
         align-items: center;
         flex-wrap: wrap;
+        cursor: pointer;
+    }
+    .room-list .item:hover {
+        background-color: #f2f2f2;
     }
     .room-list .item > div {
         flex: 1;
@@ -105,26 +109,13 @@
             <div class="row">
                 <div class="main col-xs-8 round">
                     <div class="topbar box">
-                        <span class="btn btn-default" id="createRoom">创建房间</span>
-                        <span>11</span> rooms -
-                        <span>112</span> users
+                        <span class="btn btn-default space-right" id="createRoom">创建房间</span>
+                        <span class="rooms">11</span> rooms -
+                        <span class="users">112</span> users
                         <span class="btn text-info"><strong>刷新</strong></span>
                     </div>
                     <div class="room-list">
-                        <ul>
-                            <li class="item box">
-                                <div id="name">欢迎光临</div>
-                                <div id="owner">枣子君</div>
-                                <div id="status">1/20</div>
-                                <div id="members"></div>
-                            </li>
-                            <li class="item box">
-                                <div id="name">欢迎光临</div>
-                                <div id="owner">枣子君</div>
-                                <div id="status">1/20</div>
-                                <div id="members"></div>
-                            </li>
-                        </ul>
+                        <ul></ul>
                     </div>
                 </div>
                 <aside class="col-xs-4">
@@ -140,7 +131,7 @@
                             <input type="text" name="" id="" class="form-control">
                             <span class="input-group-btn">
                                 <button class="btn btn-default" type="button">搜索</button>
-                              </span>
+                            </span>
                         </div>
                         <div>
                             <label for="">
@@ -300,7 +291,12 @@
                 })
                 .done(
                     data => {
-                        location.href = `/room/?id=${data.roomId}`
+                        if (data.errno === 0) {
+                            location.href = `/room.html?id=${data.roomId}`;
+                        }
+                        else {
+                            console(data);
+                        }
                     },
                     err => console.log(err)
                 )
@@ -309,6 +305,36 @@
                 )
             }
         })
+
+        // 获取房间列表
+        $.get('/room_list')
+        .done(
+            data => {
+                let list = $('.room-list ul');
+                let rooms = $('.rooms');
+                let tpl = '';
+                data.data.forEach(item => {
+                    tpl += `<li class="item box" roomid="${item._id}" title="${item.roomDisc}">
+                                <div id="name">${item.roomName}</div>
+                                <div id="owner">${item.username}</div>
+                                <div id="status">${item.memberNum}</div>
+                                <div id="members"></div>
+                            </li>
+                            `
+                });
+                list.html(tpl);
+                rooms.html(data.data.length)
+
+                $('.room-list .item').click((e) => {
+                    let id = e.currentTarget.getAttribute('roomid');
+                    location.href = '/room.html?id=' + id;
+                })
+            },
+            err => console.log(err)
+        )
+        .fail(
+            err => console.log(err)
+        )
     })();
     </script>
 </body>
