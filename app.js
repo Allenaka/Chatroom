@@ -255,8 +255,16 @@ io.on('connection', client => {
         // 存储用户
         users.push([username, client]);
         // 广播消息
-        io.emit('userEnter', user.map(item => item[0]))
+        io.emit('userEnter', users.map(item => item[0]))
+    })
+    // 监听用户离开
+    client.on('disconnect', () => {
+        // 移出该用户
+        let index = users.findIndex(item => item[1] === client);
+        users.splice(index, 1)
+        io.emit('userLeave', users.map(item => item[0]));
     })
 })
+
 // 启动应用
 server.listen(3000, () => console.log('sever listen at 3000'))

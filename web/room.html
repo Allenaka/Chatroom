@@ -29,6 +29,7 @@
     }
     .talks .panel-body{
         height: 500px;
+        margin-left: 20px;
     }
     .message {
         background-color: #fff;
@@ -55,6 +56,20 @@
         cursor: pointer;
         font-size: 20px;
     }
+    #userList {
+        height: 653px;
+        overflow: scroll;
+    }
+    #userList::-webkit-scrollbar { 
+        width:5px;
+    }
+    #userList::-webkit-scrollbar-thumb {
+        background: #ccc;
+        border-radius: 20px;
+    }
+    #userList::-webkit-scrollbar-thumb:hover {
+        background: #f2f2f2;
+    }
     </style>
 </head>
 <body>
@@ -63,7 +78,9 @@
             <div class="content">
                 <div class="user-list panel panel-default col-xs-3">
                     <div class="panel-heading">用户列表</div>
-                    <div class="panel-body">123213</div>
+                    <div class="panel-body">
+                        <ul id="userList" class="list-group"></ul>
+                    </div>
                 </div>
                 <div class="talks panel panel-default col-xs-9">
                     <div class="panel-heading">发言列表</div>
@@ -202,16 +219,39 @@
                 $textInput.val($textInput.val() + item.innerHTML)
             }
         });
-    })()
-    </script>
-    <script>
-    (function() {
+
+
         // 创建socket
         let socket = io();
         // 监听连接完毕
         socket.on('connect', () => {
-            console.log(111)
+            socket.emit('newMember', username)
         })
+        // 监听用户进入
+        socket.on('userEnter', arr => {
+            renderUserList(arr);
+        })
+        // 监听用户离开
+        socket.on('userLeave', arr => {
+            renderUserList(arr);
+        })
+        function renderUserList(arr) {
+            console.log(arr)
+            let list = $('#userList');
+            // 清空用户列表
+            list.html('');
+            // 渲染用户列表
+            arr.forEach(item => {
+                if (room.username === item) {
+                    list.append(`<li class="list-group-item"><span class="glyphicon glyphicon-home"></span>${item}</li>`)
+                }
+            })
+        }
+    })()
+    </script>
+    <script>
+    (function() {
+        
     })();
     </script>
 </body>
