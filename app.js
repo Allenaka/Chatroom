@@ -323,6 +323,14 @@ io.on('connection', client => {
         // 广播消息
         io.emit('userLeave', roomId, room.users.map(item => item[0])) 
     })
+
+    // 监听用户发言
+    client.on('message', (text, id) => {
+        // 广播
+        // 获取用户名
+        let user = room.users.find(item => item[1] === client);
+        io.emit('showMessage', user[0] + ' 说：' + text, id);
+    })
 })
 
 // 启动应用

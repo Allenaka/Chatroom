@@ -152,7 +152,7 @@
                     <span class="item">😠</span>
                 </div>
                 <textarea class="form-control" id="textInput"></textarea>
-                <span class="input-group-addon">post</span>
+                <span class="input-group-addon" id="submitBtn">post</span>
             </div>
         </div>
     </div>
@@ -256,12 +256,27 @@
                 }
             })
         }
+
+        // 点击发言，获取内容，将内容传得给服务器，让服务器转发给每一个客户端
+        let input = $('#textInput');
+        $('#submitBtn').click(e => {
+            // 获取内容
+            let text = input.val();
+            // 判断是否输入正确
+            if (/^\s*$/.test(text)) {
+                return alert('请输入内容')
+            }
+            // 提交数据
+            socket.emit('message', text.trim(), roomId);
+        })
+
+        // 监听showMessage消息
+        socket.on('showMessage', (message, id) => {
+            if (id === roomId) {
+                $('.talks .panel-body').append(`<div>${message}</div>`)
+            }
+        })
     })()
-    </script>
-    <script>
-    (function() {
-        
-    })();
     </script>
 </body>
 </html>
