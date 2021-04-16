@@ -292,7 +292,7 @@
                 .done(
                     data => {
                         if (data.errno === 0) {
-                            location.href = `/room.html?id=${data.roomId}`;
+                            location.href = `/room/${data.roomId}/room.html?id=${data.roomId}`;
                         }
                         else {
                             console(data);
@@ -310,25 +310,27 @@
         $.get('/room_list')
         .done(
             data => {
-                let list = $('.room-list ul');
-                let rooms = $('.rooms');
-                let tpl = '';
-                data.data.forEach(item => {
-                    tpl += `<li class="item box" roomid="${item._id}" title="${item.roomDisc}">
-                                <div id="name">${item.roomName}</div>
-                                <div id="owner">${item.username}</div>
-                                <div id="status">${item.memberNum}</div>
-                                <div id="members"></div>
-                            </li>
-                            `
-                });
-                list.html(tpl);
-                rooms.html(data.data.length)
+                if (data.data) {
+                    let list = $('.room-list ul');
+                    let rooms = $('.rooms');
+                    let tpl = '';
+                    data.data.forEach(item => {
+                        tpl += `<li class="item box" roomid="${item._id}" title="${item.roomDisc}">
+                                    <div id="name">${item.roomName}</div>
+                                    <div id="owner">${item.username}</div>
+                                    <div id="status">${item.memberNum}</div>
+                                    <div id="members"></div>
+                                </li>
+                                `
+                    });
+                    list.html(tpl);
+                    rooms.html(data.data.length)
 
-                $('.room-list .item').click((e) => {
-                    let id = e.currentTarget.getAttribute('roomid');
-                    location.href = '/room.html?id=' + id;
-                })
+                    $('.room-list .item').click((e) => {
+                        let id = e.currentTarget.getAttribute('roomid');
+                        location.href = `/room/${id}/room.html?id=${id}`;
+                    })
+                }   
             },
             err => console.log(err)
         )

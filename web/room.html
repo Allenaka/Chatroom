@@ -225,15 +225,24 @@
         let socket = io();
         // 监听连接完毕
         socket.on('connect', () => {
-            socket.emit('newMember', username)
+            socket.emit('newMember', username, roomId)
+        })
+        socket.on('disconnect', () => {
+            socket.emit('quitMember', username, roomId)
         })
         // 监听用户进入
-        socket.on('userEnter', arr => {
-            renderUserList(arr);
+        socket.on('userEnter', (id, arr) => {
+            if (id === roomId) {
+                console.log(id, roomId)
+                renderUserList(arr);
+            }   
         })
         // 监听用户离开
-        socket.on('userLeave', arr => {
-            renderUserList(arr);
+        socket.on('userLeave', (id, arr) => { 
+            if (id === roomId) {
+                console.log(id, roomId)
+                renderUserList(arr);
+            }  
         })
         function renderUserList(arr) {
             console.log(arr)

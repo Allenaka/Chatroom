@@ -47,6 +47,7 @@ const TOKEN = 'zaozijintianbuchizao';
 // 静态化
 app.use(express.static('./web/'));
 app.use('/upload/', express.static('./upload/'));
+app.use('/room/', express.static('./room/'));
 
 // post请求体
 app.use(bodyParser.urlencoded({ extended: false }));
@@ -180,16 +181,65 @@ app.get('/userinfo', (req, res) => {
     })
 })
 // 创房接口
-app.post('/create_room', (req, res) => {
+app.post('/create_room', async (req, res) => {
     let {username, roomName, roomDisc, memberNum} = req.body;
     // 房间目录
-    // let roomDir = path.join('/room', roomId)
-    db.collection('room')
+    let roomDir;
+    // 页面路径
+    let filePath;
+    let result = await new Promise((resolve, reject) => {
+        db.collection('room')
         .insertOne({username, roomName, roomDisc, memberNum})
         .then(
-            data => res.json({errno: 0, msg: '创建成功', roomId: data.insertedId}),
-            err => res.json(err)
+            data => {
+                let roomId = data.insertedId.toString();
+                // 房间目录
+                roomDir = path.join('/room/', roomId);
+                filePath = path.join(roomDir, 'room.html');
+                res.json({errno: 0, msg: '创建成功', roomId})
+                resolve({n: 0})
+            },
+            err => {
+                res.json(err);
+                reject({n: 1, data: err});
+            } 
         )
+    })
+    
+    if (result.n === 0) {
+        result = await new Promise((resolve, reject) => {
+            fs.mkdir(path.join(root, roomDir), err => {
+                if (err) {
+                    reject({n: 1, data: err});
+                } else {
+                    resolve({n: 0});
+                }
+            })
+        })
+        if (result.n === 0) {
+            result = await new Promise((resolve, reject) => {
+                fs.readFile(path.join(root, '/web/room.html'), (err, data) => {
+                    if (err) {
+                        reject({n: 1, data: err});
+                    } else {
+                        resolve({n: 0, data});
+                    }
+                })
+            })
+            if (result.n === 0) {
+                result = await new Promise((resolve, reject) => {
+                    // 写入文件
+                    fs.appendFile(path.join(root, filePath), result.data, err => {
+                        if(err) {
+                            reject({n: 1, data: err});
+                        } else {
+                            resolve({n: 0})
+                        }
+                    })
+                })
+            }
+        }
+    }   
 })
 // 获取房间信息接口
 app.get('/roominfo', async (req, res) => {
@@ -245,24 +295,33 @@ let server = http.createServer(app);
 // 添加socket协议
 let io = socket(server);
 
-// 用户列表
-let users = [];
+// 房间列表
+let rooms = [];
 
 // 监听客户端连接成功
 io.on('connection', client => {
+    let room;
     // 监听房间成员
-    client.on('newMember', username => {
-        // 存储用户
-        users.push([username, client]);
+    client.on('newMember', (username, roomId) => {
+        if (room = rooms.find(item => item.id === roomId)) {
+            room.users.push([username, client]);
+        } else {
+            rooms.push({id: roomId, users:[]});
+            room = rooms.find(item => item.id === roomId);
+            room.users.push([username, client]);
+        }
         // 广播消息
-        io.emit('userEnter', users.map(item => item[0]))
+        io.emit('userEnter', roomId, room.users.map(item => item[0]))
     })
     // 监听用户离开
     client.on('disconnect', () => {
+        let href = client.handshake.headers.referer;
+        let roomId = href.slice(href.search('id')+3);
         // 移出该用户
-        let index = users.findIndex(item => item[1] === client);
-        users.splice(index, 1)
-        io.emit('userLeave', users.map(item => item[0]));
+        let index = room.users.findIndex(item => item[1] === client);
+        room.users.splice(index, 1);
+        // 广播消息
+        io.emit('userLeave', roomId, room.users.map(item => item[0])) 
     })
 })
 
