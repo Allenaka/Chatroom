@@ -158,7 +158,7 @@ app.post('/login', (req,res) => {
         .then(
             ({username, url}) => {
                 // 创建token
-                jwt.sign({username, url}, TOKEN, {expiresIn: 3000} ,(err, data) => {
+                jwt.sign({username, url, online: true}, TOKEN, {expiresIn: 3000} ,(err, data) => {
                     if (err) {
                         res.json({errno: 2, msg: '登陆失败'});
                     } else {
@@ -290,6 +290,12 @@ app.get('/room_list', (req, res) => {
             err => res.json({errno: 1, msg: err.msg})
         )
 })
+// 获取在线用户数
+app.get('/user_online', (req, res) => {
+    res.json({usernum})
+})
+
+
 let server = http.createServer(app);
 
 // 添加socket协议
@@ -297,10 +303,16 @@ let io = socket(server);
 
 // 房间列表
 let rooms = [];
+// 在线用户数
+let usernum = 0;
+
 
 // 监听客户端连接成功
 io.on('connection', client => {
     let room;
+    ++usernum;
+
+    io.emit('init');
     // 监听房间成员
     client.on('newMember', (username, roomId) => {
         if (room = rooms.find(item => item.id === roomId)) {
@@ -315,13 +327,18 @@ io.on('connection', client => {
     })
     // 监听用户离开
     client.on('disconnect', () => {
+        // 在线人数减一
+        usernum--;
         let href = client.handshake.headers.referer;
-        let roomId = href.slice(href.search('id')+3);
-        // 移出该用户
-        let index = room.users.findIndex(item => item[1] === client);
-        room.users.splice(index, 1);
-        // 广播消息
-        io.emit('userLeave', roomId, room.users.map(item => item[0])) 
+        if (!(href.search('room') === -1)) {
+            // 用户离开房间
+            let roomId = href.slice(href.search('id')+3);
+            // 移出该用户
+            let index = room.users.findIndex(item => item[1] === client);
+            room.users.splice(index, 1);
+            // 广播消息
+            io.emit('userLeaveRoom', roomId, room.users.map(item => item[0])) 
+        }   
     })
 
     // 监听用户发言
