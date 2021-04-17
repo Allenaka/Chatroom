@@ -9,16 +9,16 @@
     <style>
     body {
         background-color: #165d8f;
-        padding-top: 30px;
+        padding: 30px 0;
     }
-    body::-webkit-scrollbar { 
+    .scrollbar::-webkit-scrollbar { 
         width:5px;
     }
-    body::-webkit-scrollbar-thumb {
+    .scrollbar::-webkit-scrollbar-thumb {
         background: #ccc;
         border-radius: 20px;
     }
-    body::-webkit-scrollbar-thumb:hover {
+    .scrollbar::-webkit-scrollbar-thumb:hover {
         background: #f2f2f2;
     }
     .form-control:focus {
@@ -51,49 +51,43 @@
         background-color: #fff;
         padding: 0 10px;
         user-select: none;
+        overflow: scroll;
     }
     #emojiList .item {
         cursor: pointer;
         font-size: 20px;
     }
     #userList {
-        height: 653px;
+        height: 450px;
         overflow: scroll;
     }
-    #userList::-webkit-scrollbar { 
-        width:5px;
-    }
-    #userList::-webkit-scrollbar-thumb {
-        background: #ccc;
-        border-radius: 20px;
-    }
-    #userList::-webkit-scrollbar-thumb:hover {
-        background: #f2f2f2;
+    .talks .panel-body {
+        overflow: scroll;
     }
     </style>
 </head>
-<body>
+<body class="scrollbar">
     <div id="app" class="container">
         <div class="row">
             <div class="content">
                 <div class="user-list panel panel-default col-xs-3">
                     <div class="panel-heading">用户列表</div>
                     <div class="panel-body">
-                        <ul id="userList" class="list-group"></ul>
+                        <ul id="userList" class="list-group scrollbar"></ul>
                     </div>
                 </div>
                 <div class="talks panel panel-default col-xs-9">
                     <div class="panel-heading">发言列表</div>
-                    <div class="panel-body"></div>
+                    <div class="panel-body scrollbar"></div>
                 </div>
             </div>
             <div class="input-group message">
-                <div class="toolbar ">
+                <div class="toolbar">
                     <a class="btn btn-emoji">
                         <span class="glyphicon glyphicon-list"></span>
                     </a>     
                 </div>
-                <div id="emojiList">
+                <div id="emojiList" class="scrollbar">
                     <span class="item">😀</span>
                     <span class="item">😁</span>
                     <span class="item">😂</span>
@@ -151,7 +145,7 @@
                     <span class="item">😡</span>
                     <span class="item">😠</span>
                 </div>
-                <textarea class="form-control" id="textInput"></textarea>
+                <textarea class="form-control scrollbar" id="textInput"></textarea>
                 <span class="input-group-addon" id="submitBtn">post</span>
             </div>
         </div>
@@ -227,9 +221,6 @@
         socket.on('connect', () => {
             socket.emit('newMember', username, roomId)
         })
-        socket.on('disconnect', () => {
-            socket.emit('quitMember', username, roomId)
-        })
         // 监听用户进入
         socket.on('userEnter', (id, arr) => {
             if (id === roomId) {
@@ -238,7 +229,7 @@
             }   
         })
         // 监听用户离开
-        socket.on('userLeave', (id, arr) => { 
+        socket.on('userLeaveRoom', (id, arr) => { 
             if (id === roomId) {
                 console.log(id, roomId)
                 renderUserList(arr);
@@ -253,6 +244,8 @@
             arr.forEach(item => {
                 if (room.username === item) {
                     list.append(`<li class="list-group-item"><span class="glyphicon glyphicon-home"></span>${item}</li>`)
+                } else {
+                    list.append(`<li class="list-group-item"><span class="glyphicon glyphicon-user"></span>${item}</li>`)
                 }
             })
         }
@@ -268,6 +261,7 @@
             }
             // 提交数据
             socket.emit('message', text.trim(), roomId);
+            input.val('');
         })
 
         // 监听showMessage消息

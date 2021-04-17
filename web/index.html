@@ -112,7 +112,7 @@
                         <span class="btn btn-default space-right" id="createRoom">创建房间</span>
                         <span class="rooms">11</span> rooms -
                         <span class="users">112</span> users
-                        <span class="btn text-info"><strong>刷新</strong></span>
+                        <span class="btn text-info refresh"><strong>刷新</strong></span>
                     </div>
                     <div class="room-list">
                         <ul></ul>
@@ -123,7 +123,7 @@
                         <div id="photo" class="space-right"></div>
                         <div>
                             <p id="username">username</p>
-                            <a href="./login.html">登出</a>
+                            <a href="./login.html" class="signout">登出</a>
                         </div>
                     </div>
                     <div id="search" class="round box">
@@ -204,8 +204,17 @@
     </div><!-- /.modal -->
     <script src="./lib/jquery-3.4.1.min.js"></script>
     <script src="./lib/bootstrap.js"></script>
+    <script src="/socket.io/socket.io.js"></script>
     <script>
     (function() {
+
+        let socket = io();
+        socket.on('init', () => {
+            getNumOnline();
+        })
+
+        let $users = $('.users');
+        let $rooms = $('.rooms');
         let username;
         let modal = $('.modal');
         function showModal() {
@@ -238,7 +247,8 @@
         .fail(
             err => console.log(err)
         )
-
+        
+        getRoomList();
         // 创建房间
         let $creatRoom = $('#createRoom');
         let $btnCreate = $('#btnCreate');
@@ -309,37 +319,75 @@
             }
         })
 
+        // 获取在线用户数
+        function getNumOnline() {
+            $.get('/user_online')
+            .done(
+                data => $users.html(data.usernum),
+                err => console.log(err)
+            )
+            .fail (
+                err => console.log(err)
+            )
+        }
+        
         // 获取房间列表
-        $.get('/room_list')
-        .done(
-            data => {
-                if (data.data) {
-                    let list = $('.room-list ul');
-                    let rooms = $('.rooms');
-                    let tpl = '';
-                    data.data.forEach(item => {
-                        tpl += `<li class="item box" roomid="${item._id}" title="${item.roomDisc}">
-                                    <div id="name">${item.roomName}</div>
-                                    <div id="owner">${item.username}</div>
-                                    <div id="status">${item.memberNum}</div>
-                                    <div id="members"></div>
-                                </li>
-                                `
-                    });
-                    list.html(tpl);
-                    rooms.html(data.data.length)
+        function getRoomList() {
+            $.get('/room_list')
+            .done(
+                data => {
+                    if (data.data) {
+                        let list = $('.room-list ul');
+                        let tpl = '';
+                        data.data.forEach(item => {
+                            tpl += `<li class="item box" roomid="${item._id}" title="${item.roomDisc}">
+                                        <div id="name">${item.roomName}</div>
+                                        <div id="owner">${item.username}</div>
+                                        <div id="status">${item.memberNum}</div>
+                                        <div id="members"></div>
+                                    </li>
+                                    `
+                        });
+                        list.html(tpl);
+                        $rooms.html(data.data.length);
 
-                    $('.room-list .item').click((e) => {
-                        let id = e.currentTarget.getAttribute('roomid');
-                        location.href = `/room/${id}/room.html?id=${id}`;
-                    })
-                }   
-            },
-            err => console.log(err)
-        )
-        .fail(
-            err => console.log(err)
-        )
+                        $('.room-list .item').click((e) => {
+                            let id = e.currentTarget.getAttribute('roomid');
+                            location.href = `/room/${id}/room.html?id=${id}`;
+                        })
+                    } else {
+                        let list = $('.room-list ul');
+                        list.html('');
+                        $rooms.html(0);
+                    }   
+                },
+                err => console.log(err)
+            )
+            .fail(
+                err => console.log(err)
+            )
+        }
+        
+
+        // 刷新
+        $('.refresh').click(e => {
+            // 获取在线用户数
+            getNumOnline();
+            // 获取房间列表
+            getRoomList();
+        })
+        // 登出
+        $('.signout').click(e => {
+            localStorage.removeItem('token');
+        })
+
+        
+        // socket.on('userEnterIndex', num => {
+        //     
+        // })
+        // socket.on('userLeaveIndex', num => {
+        //     $users.html(num); 
+        // })
     })();
     </script>
 </body>
