@@ -228,6 +228,9 @@
                     username = data.data.username;
                     $userinfo.find('#photo').css('background-image', 'url(' + data.data.url + ')').end()
                         .find('#username').html(username);     
+                } else {
+                    // token失效
+                    location.href = '/login.html'
                 }
             },
             err => console.log(err)

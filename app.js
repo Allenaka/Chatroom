@@ -158,7 +158,7 @@ app.post('/login', (req,res) => {
         .then(
             ({username, url}) => {
                 // 创建token
-                jwt.sign({username, url}, TOKEN, (err, data) => {
+                jwt.sign({username, url}, TOKEN, {expiresIn: 3000} ,(err, data) => {
                     if (err) {
                         res.json({errno: 2, msg: '登陆失败'});
                     } else {
