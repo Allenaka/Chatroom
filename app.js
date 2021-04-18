@@ -374,7 +374,7 @@ io.on('connection', client => {
             room.users.push([username, client]);
         }
         // 广播消息
-        io.emit('userEnter', roomId, room.users.map(item => item[0]))
+        io.emit('userEnter', roomId, room.users.map(item => item[0]), room.users.length)
     })
     // 监听用户离开
     client.on('disconnect', () => {
@@ -388,7 +388,7 @@ io.on('connection', client => {
             let index = room.users.findIndex(item => item[1] === client);
             room.users.splice(index, 1);
             // 广播消息
-            io.emit('userLeaveRoom', roomId, room.users.map(item => item[0])) 
+            io.emit('userLeaveRoom', roomId, room.users.map(item => item[0]), room.users.length) 
         }   
     })
 
