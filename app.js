@@ -402,6 +402,10 @@ io.on('connection', client => {
         let user = room.users.find(item => item[1] === client);
         io.emit('showMessage', user[0] + ' 说：' + text, id);
     })
+    // 监听房间解散
+    client.on('disband', id => {
+        io.emit('roomDisbanded', id);
+    })
 })
 
 // 启动应用

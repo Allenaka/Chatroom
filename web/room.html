@@ -271,6 +271,16 @@
             });
             $modal.find('.modal-body').html(content).end().modal();       
         }
+        function showModalDisband() {
+            $modal.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $('.btn-confirm').click(e => {
+                location.href = '/index.html'
+            })
+            $modal.find('.modal-body').html('房间已被房主解散').end().modal();
+        }
         function renderUserList(arr) {
             console.log(arr)
             let list = $('#userList');
@@ -316,6 +326,7 @@
                     .done(
                         data => {
                             if (data.errno === 0) {
+                                socket.emit('disband', roomId);
                                 location.href = '/index.html'
                             }
                         },
@@ -327,6 +338,11 @@
                 })
             } else {
                 location.href = '/index.html'
+            }
+        })
+        socket.on('roomDisbanded', id => {
+            if (roomId == id) {
+                showModalDisband();
             }
         })
     })()
