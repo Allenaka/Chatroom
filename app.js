@@ -285,6 +285,9 @@ app.get('/room_list', (req, res) => {
         .findMany()
         .then(
             data => {
+                data.forEach(e => {
+                    e.currentNum = (rooms.find(item => item.id == e._id)).users.length;
+                });
                 res.json({errno: 0, data})
             },
             err => res.json({errno: 1, msg: err.msg})
