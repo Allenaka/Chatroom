@@ -294,6 +294,57 @@ app.get('/room_list', (req, res) => {
 app.get('/user_online', (req, res) => {
     res.json({usernum})
 })
+// 解散房间
+app.get('/disband', async (req, res) => {
+    let id = req.query.id;
+    let dirPath = path.join(root, 'room/' + id)
+    let result = await new Promise((resolve, reject) => {
+        async function deldir(dirPath) {
+            let arr = await new Promise(resolve => {
+                fs.readdir(dirPath, (err, data) => {
+                    resolve(data)
+                })
+            })
+            //如果有子目录
+            if (arr) {
+                for (let i = 0; i < arr.length; i++) {
+                    let subPath = dirPath + '/' + arr[i];
+                    let isDir = await new Promise(resolve => {
+                        fs.stat(subPath, (err, state) => {
+                            resolve(state && state.isDirectory())
+                        })
+                    })
+                    if (isDir) {
+                        await deldir(subPath);
+                    } else {
+                        // 删除文件
+                        await new Promise(resolve => {
+                            fs.unlink(subPath, err => {
+                                resolve();
+                            })
+                        })
+                    }
+                }
+            }  
+            // 删除这个目录
+            await new Promise(resolve => {
+                fs.rmdir(dirPath, () => {
+                    resolve();
+                })
+            }) 
+        }
+        deldir(dirPath);
+        resolve({n: 0})
+    })
+    if (result.n === 0) {
+        db.collection('room')
+            .deleteOne({_id: id})
+            .then(
+                () => res.json({errno: 0, msg: '删除成功'}),
+                err => res.json({errno: 1, msg: err})
+            )
+    }
+})
 
 
 let server = http.createServer(app);

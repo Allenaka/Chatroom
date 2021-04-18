@@ -64,6 +64,14 @@
     .talks .panel-body {
         overflow: scroll;
     }
+    .btn-leave {
+        position: absolute;
+        left: 30px;
+        top: 20px;
+        color: #fff;
+        font-size: 30px;
+        cursor: pointer;
+    }
     </style>
 </head>
 <body class="scrollbar">
@@ -149,13 +157,33 @@
                 <span class="input-group-addon" id="submitBtn">post</span>
             </div>
         </div>
+        <div class="btn btn-leave glyphicon glyphicon-menu-left" title="离开"></div>
     </div>
+
+    <div class="modal fade" tabindex="-1" role="dialog">
+        <div class="modal-dialog" role="document">
+          <div class="modal-content">
+            <div class="modal-header">
+              <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+              <h4 class="modal-title">提示</h4>
+            </div>
+            <div class="modal-body">
+              <p>One fine body&hellip;</p>
+            </div>
+            <div class="modal-footer">
+              <button type="button" class="btn btn-default" data-dismiss="modal">取消</button>
+              <button type="button" class="btn btn-primary btn-confirm">确定</button>
+            </div>
+          </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
     
     <script src="/lib/jquery-3.4.1.min.js"></script>
     <script src="/lib/bootstrap.js"></script>
     <script src="/socket.io/socket.io.js"></script>
     <script>
     (function() {
+        let $modal = $('.modal');
         // 获取url中的参数
         let url = location.href;
         let roomId = '';
@@ -235,6 +263,14 @@
                 renderUserList(arr);
             }  
         })
+
+        function showModal(content) {
+            $modal.modal({
+                backdrop: 'static',
+                keyboard: false
+            });
+            $modal.find('.modal-body').html(content).end().modal();       
+        }
         function renderUserList(arr) {
             console.log(arr)
             let list = $('#userList');
@@ -268,6 +304,29 @@
         socket.on('showMessage', (message, id) => {
             if (id === roomId) {
                 $('.talks .panel-body').append(`<div>${message}</div>`)
+            }
+        })
+
+        // 离开房间
+        $('.btn-leave').click(e => {
+            if (username === room.username) {
+                showModal('您是房主，是否确定解散房间后离开？')
+                $('.btn-confirm').click(e => {
+                    $.get('/disband?id=' + roomId)
+                    .done(
+                        data => {
+                            if (data.errno === 0) {
+                                location.href = '/index.html'
+                            }
+                        },
+                        err => console.log(err)
+                    )
+                    .fail(
+                        err => console.log(err)
+                    )
+                })
+            } else {
+                location.href = '/index.html'
             }
         })
     })()
