@@ -369,6 +369,7 @@ io.on('connection', client => {
     io.emit('init');
     // 监听房间成员
     client.on('newMember', (username, roomId) => {
+        console.log(roomId);
         if (room = rooms.find(item => item.id === roomId)) {
             room.users.push([username, client]);
         } else {
@@ -377,7 +378,7 @@ io.on('connection', client => {
             room.users.push([username, client]);
         }
         // 广播消息
-        io.emit('userEnter', roomId, room.users.map(item => item[0]), room.users.length)
+        io.emit('userEnter', roomId, room.users.map(item => item[0]), username, room.users.length)
     })
     // 监听用户离开
     client.on('disconnect', () => {
@@ -405,6 +406,15 @@ io.on('connection', client => {
     // 监听房间解散
     client.on('disband', id => {
         io.emit('roomDisbanded', id);
+    })
+    // 监听视频开始播放
+    client.on('startPlay', (id, url, currTime) => {
+        io.emit('videoPlayStart', id, url, currTime);
+    })
+    // 监听视频当前进度
+    client.on('currentVideo', (id, name, url, currTime) => {
+        console.log(id, name, url, currTime);
+        io.emit('videoCurrentTime', id, name, url, currTime);
     })
 })
 

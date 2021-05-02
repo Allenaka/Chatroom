@@ -57,6 +57,9 @@
         cursor: pointer;
         font-size: 20px;
     }
+    #playVideo {
+        display: none;
+    } 
     #userList {
         height: 450px;
         overflow: scroll;
@@ -72,86 +75,124 @@
         font-size: 30px;
         cursor: pointer;
     }
+    .show {
+        display: block;
+    }
+    .space-bottom {
+        margin-bottom: 10px;
+    }
+    .user-list {
+        position: absolute;
+        right: 0;
+        top: 30px;
+    }
+    .player .panel-body {
+        background-color: #000;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 500px;
+    }
+    .player video {
+        width: 100%;  
+    }
     </style>
 </head>
 <body class="scrollbar">
     <div id="app" class="container">
         <div class="row">
             <div class="content">
-                <div class="user-list panel panel-default col-xs-3">
+                <div class="user-list panel panel-default">
                     <div class="panel-heading">用户列表</div>
                     <div class="panel-body">
                         <ul id="userList" class="list-group scrollbar"></ul>
                     </div>
                 </div>
-                <div class="talks panel panel-default col-xs-9">
+                <div class="talks panel panel-default col-xs-4">
                     <div class="panel-heading">发言列表</div>
                     <div class="panel-body scrollbar"></div>
                 </div>
-            </div>
-            <div class="input-group message">
-                <div class="toolbar">
-                    <a class="btn btn-emoji">
-                        <span class="glyphicon glyphicon-list"></span>
-                    </a>     
+                <div class="player panel panel-default col-xs-8">
+                    <div class="panel-heading">视频播放</div>
+                    <div class="panel-body">
+                        <video src="" controls autoplay></video>
+                    </div>
                 </div>
-                <div id="emojiList" class="scrollbar">
-                    <span class="item">😀</span>
-                    <span class="item">😁</span>
-                    <span class="item">😂</span>
-                    <span class="item">😃</span>
-                    <span class="item">😄</span>
-                    <span class="item">😅</span>
-                    <span class="item">😆</span>
-                    <span class="item">😉</span>
-                    <span class="item">😊</span>
-                    <span class="item">😋</span>
-                    <span class="item">😎</span>
-                    <span class="item">😍</span>
-                    <span class="item">😘</span>
-                    <span class="item">😗</span>
-                    <span class="item">😙</span>
-                    <span class="item">😚</span>
-                    <span class="item">😇</span>
-                    <span class="item">😐</span>
-                    <span class="item">😑</span>
-                    <span class="item">😶</span>
-                    <span class="item">😏</span>
-                    <span class="item">😣</span>
-                    
-                    <span class="item">😥</span>
-                    <span class="item">😮</span>
-                    <span class="item">😯</span>
-                    <span class="item">😪</span>
-                    <span class="item">😫</span>
-                    <span class="item">😴</span>
-                    <span class="item">😌</span>
-                    <span class="item">😛</span>
-                    <span class="item">😜</span>
-                    <span class="item">😝</span>
-                    <span class="item">😒</span>
-                    <span class="item">😓</span>
-                    
-                    <span class="item">😔</span>
-                    <span class="item">😕</span>
-                    <span class="item">😲</span>
-                    <span class="item">😷</span>
-                    <span class="item">😖</span>
-                    <span class="item">😞</span>
-                    <span class="item">😟</span>
-                    <span class="item">😤</span>
-                    <span class="item">😢</span>
-                    <span class="item">😭</span>
-                    <span class="item">😦</span>
-                    <span class="item">😧</span>
-                    <span class="item">😨</span>
-                    <span class="item">😬</span>
-                    <span class="item">😰</span>
-                    <span class="item">😱</span>
-                    <span class="item">😳</span>
-                    <span class="item">😵</span>
-                    <span class="item">😡</span>
-                    <span class="item">😠</span>
+            </div>
+            <div class="input-group message col-xs-12">
+                <div class="toolbar">
+                    <a class="btn">
+                        <span class="glyphicon glyphicon-list btn-emoji"></span>
+                    </a>   
+                    <a class="btn">
+                        <span class="glyphicon glyphicon-list btn-video"></span>
+                    </a>    
+                </div>
+                <div class="detail">
+                    <div id="emojiList" class="scrollbar">
+                        <span class="item">😀</span>
+                        <span class="item">😁</span>
+                        <span class="item">😂</span>
+                        <span class="item">😃</span>
+                        <span class="item">😄</span>
+                        <span class="item">😅</span>
+                        <span class="item">😆</span>
+                        <span class="item">😉</span>
+                        <span class="item">😊</span>
+                        <span class="item">😋</span>
+                        <span class="item">😎</span>
+                        <span class="item">😍</span>
+                        <span class="item">😘</span>
+                        <span class="item">😗</span>
+                        <span class="item">😙</span>
+                        <span class="item">😚</span>
+                        <span class="item">😇</span>
+                        <span class="item">😐</span>
+                        <span class="item">😑</span>
+                        <span class="item">😶</span>
+                        <span class="item">😏</span>
+                        <span class="item">😣</span>
+                        
+                        <span class="item">😥</span>
+                        <span class="item">😮</span>
+                        <span class="item">😯</span>
+                        <span class="item">😪</span>
+                        <span class="item">😫</span>
+                        <span class="item">😴</span>
+                        <span class="item">😌</span>
+                        <span class="item">😛</span>
+                        <span class="item">😜</span>
+                        <span class="item">😝</span>
+                        <span class="item">😒</span>
+                        <span class="item">😓</span>
+                        
+                        <span class="item">😔</span>
+                        <span class="item">😕</span>
+                        <span class="item">😲</span>
+                        <span class="item">😷</span>
+                        <span class="item">😖</span>
+                        <span class="item">😞</span>
+                        <span class="item">😟</span>
+                        <span class="item">😤</span>
+                        <span class="item">😢</span>
+                        <span class="item">😭</span>
+                        <span class="item">😦</span>
+                        <span class="item">😧</span>
+                        <span class="item">😨</span>
+                        <span class="item">😬</span>
+                        <span class="item">😰</span>
+                        <span class="item">😱</span>
+                        <span class="item">😳</span>
+                        <span class="item">😵</span>
+                        <span class="item">😡</span>
+                        <span class="item">😠</span>
+                    </div>
+                    <div id="playVideo" class="input-group">
+                        <input class="form-control" type="text" placeholder="请输入url">
+                        <span>
+                            <button class="btn btn-default" type="button">确定</button>
+                        </span>
+                    </div>
                 </div>
                 <textarea class="form-control scrollbar" id="textInput"></textarea>
                 <span class="input-group-addon" id="submitBtn">post</span>
@@ -183,31 +224,6 @@
     <script src="/socket.io/socket.io.js"></script>
     <script>
     (function() {
-        let $modal = $('.modal');
-        // 获取url中的参数
-        let url = location.href;
-        let roomId = '';
-        // 存储房间信息
-        let room = {};
-        if (url.search('id')) {
-            roomId = url.slice(url.search('id') + 3);
-        }
-        // 获取房间信息
-        $.get('/roominfo/?id=' + roomId)
-        .done(
-            data => {
-                if (data.errno === 0) {
-                    console.log(data);
-                    room = data.data;
-                } else {
-                    location.href = '/index.html';
-                }
-            },
-            err => console.log(err)
-        )
-        .fail(
-            err => console.log(err)
-        )
         // 存储用户名
         let username;
         // 获取token
@@ -215,25 +231,102 @@
         if (!token) {
             location.href = './login.html';
         } 
-        // 获取用户信息
-        $.get(`/userinfo?token=${token}`)
-        .done(
-            data => {
-                if (data.errno === 0) {
-                    username = data.data.username;
-                }
-            },
-            err => console.log(err)
-        )
-        .fail(
-            err => console.log(err)
-        )
+        
         let $emojiList = $('#emojiList');
         let $emoji = $emojiList.find('.item');
-        
-        $('.btn-emoji').click(() => {
-            $emojiList.toggle()
+        let $toolbar =  $('.toolbar');
+        let $detail = $('.detail');
+
+        let $btnPlay = $('#playVideo button');
+        let $videoUrl = $('#playVideo input');
+        let $player = $('.player video');
+        let player = $player[0];
+        let $modal = $('.modal');
+        // 获取url中的参数
+        let url = location.href;
+        let roomId = '';
+        // 存储房间信息
+        let room = {};
+        // 创建socket
+        let socket = io();
+        if (url.search('id')) {
+            roomId = url.slice(url.search('id') + 3);
+        }
+        // 获取房间信息
+        new Promise(resolve => {
+            $.get('/roominfo/?id=' + roomId)
+            .done(
+                data => {
+                    if (data.errno === 0) {
+                        console.log(data);
+                        room = data.data;
+                        resolve()
+                    } else {
+                        location.href = '/index.html';
+                    }
+                },
+                err => console.log(err)
+            )
+            .fail(
+                err => console.log(err)
+            )
+        }).then(
+            () => {
+                // 获取用户信息
+                $.get(`/userinfo?token=${token}`)
+                .done(
+                    data => {
+                        if (data.errno === 0) {
+                            username = data.data.username;
+                            console.log(111, username, room.username)
+                            // 获取权限
+                            if (username !== room.username) {
+                                $toolbar.children('a').eq(1).css({
+                                    'visibility': 'hidden'
+                                })
+                                $player.removeAttr('controls');
+                            }
+                            // // 监听连接完毕
+                            // socket.on('connect', () => {
+                                console.log(username, roomId)
+                                socket.emit('newMember', username, roomId) 
+                            // })
+                        }
+                    },
+                    err => console.log(err)
+                )
+                .fail(
+                    err => console.log(err)
+                )
+            }
+        )
+                
+
+
+ 
+        // 工具栏
+        $toolbar.click(e => {
+            let dom = e.target;
+            let i;
+            $toolbar.find('span').each((index, element) => {
+                if (element === dom) {
+                    i = index;
+                }
+            })
+            
+            $detail.children('div').each((index, element) => {
+                if (index === i) {
+                    if (element.classList.contains('show')) {
+                        element.classList.remove('show');
+                    } else {
+                        element.classList.add('show');
+                    }       
+                } else {
+                    element.classList.remove('show');
+                }
+            })  
         })
+        // 表情
         Array.from($emoji).forEach(item => {
             console.log(Array.prototype.toString.call(item))
             item.onclick = function() {
@@ -241,27 +334,51 @@
                 $textInput.val($textInput.val() + item.innerHTML)
             }
         });
-
-
-        // 创建socket
-        let socket = io();
-        // 监听连接完毕
-        socket.on('connect', () => {
-            socket.emit('newMember', username, roomId)
+        // 视频
+        $btnPlay.click(() => {
+            let url = $videoUrl.val();
+            $player.attr('src', url);
+            $videoUrl.val("");
+            let video = $player[0]
+            video.onplay = function() {
+                console.log('paly')
+                let currTime = video.currentTime;
+                socket.emit('startPlay', roomId, video.src, currTime)
+                video.onplay = null;
+            }
         })
+ 
         // 监听用户进入
-        socket.on('userEnter', (id, arr) => {
+        socket.on('userEnter', (id, arr, newUsername) => {
+            console.log(arr);
             if (id === roomId) {
-                console.log(id, roomId)
                 renderUserList(arr);
             }   
+            if (username === room.username && player.src != '') {
+                socket.emit('currentVideo', roomId, newUsername, player.src, player.currentTime);
+            }
         })
         // 监听用户离开
         socket.on('userLeaveRoom', (id, arr) => { 
+            console.log(arr);
             if (id === roomId) {
-                console.log(id, roomId)
                 renderUserList(arr);
             }  
+        })
+        // 监听视频开始
+        socket.on('videoPlayStart', (id, url, currTime) => {
+            if (id === roomId && username !== room.username) {
+                console.log(url, currTime);
+                $player.attr('src', url);
+                $player[0].currentTime = currTime;
+            }
+        })
+        // 监听服务器发送的当前视频信息
+        socket.on('videoCurrentTime', (id, name, url, currTime) => {
+            if (id === roomId && name === username) {
+                $player.attr('src', url);
+                player.currentTime = currTime;
+            }
         })
 
         function showModal(content) {

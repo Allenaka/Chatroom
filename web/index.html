@@ -212,8 +212,7 @@
         socket.on('init', () => {
             getNumOnline();
         })
-        socket.on('userEnter', (roomId, username, memNum) => {
-            console.log(roomId, memNum);
+        socket.on('userEnter', (roomId, username, name, memNum) => {
             $(`li[roomid='${roomId}'] #status span`).html(memNum)
         }) 
         socket.on('userLeaveRoom', (roomId, username, memNum) => {
