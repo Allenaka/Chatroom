@@ -158,7 +158,7 @@ app.post('/login', (req,res) => {
         .then(
             ({username, url}) => {
                 // 创建token
-                jwt.sign({username, url, online: true}, TOKEN, {expiresIn: 3000} ,(err, data) => {
+                jwt.sign({username, url, online: true}, TOKEN, {expiresIn: 250000} ,(err, data) => {
                     if (err) {
                         res.json({errno: 2, msg: '登陆失败'});
                     } else {
@@ -382,6 +382,7 @@ io.on('connection', client => {
     })
     // 监听用户离开
     client.on('disconnect', () => {
+        console.log('离开');
         // 在线人数减一
         usernum--;
         let href = client.handshake.headers.referer;
@@ -415,6 +416,14 @@ io.on('connection', client => {
     client.on('currentVideo', (id, name, url, currTime) => {
         console.log(id, name, url, currTime);
         io.emit('videoCurrentTime', id, name, url, currTime);
+    })
+    // 监听音频开始播放
+    client.on('startPlayAudio', (id, url, currTime, song, singer) => {
+        io.emit('audioPlayStart', id, url, currTime, song, singer);
+    })
+    // 监听音频当前进度
+    client.on('currentAudio', (id, name, url, currTime, song, singer) => {
+        io.emit('audioCurrentTime', id, name, url, currTime, song, singer);
     })
 })
 

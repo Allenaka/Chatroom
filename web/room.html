@@ -57,7 +57,8 @@
         cursor: pointer;
         font-size: 20px;
     }
-    #playVideo {
+    #playVideo,
+    #playAudio {
         display: none;
     } 
     #userList {
@@ -96,6 +97,59 @@
     .player video {
         width: 100%;  
     }
+    .musicbox {
+        width: 100%;
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        background-color: #fff;
+        font-size: 0;
+        padding: 5px 0;
+        z-index: 2;
+    }
+    .musicbox audio {
+        height: 0;
+    }
+    .musicbox progress {
+        width: 100%;
+        height: 2px;
+        background: transparent;
+    }
+    .musicbox .music-info {
+        font-size: 14px;
+        color: #337ab7;
+        font-weight: bold;
+    }
+    progress::-webkit-progress-bar{     
+        background: transparent;
+    }
+    progress::-webkit-progress-value{
+        background: #1885dd;
+    }
+    progress::-moz-progress-bar{     
+        background: transparent;
+    }
+    progress::-moz-progress-value{
+        background: #1885dd;
+    }
+    .music-list {
+        position: fixed;
+        bottom: -200px;
+        left: 50%;
+        width: 400px;
+        height: 200px;
+        transform: translateX(-200px);
+        background-color: rgb(211, 211, 211);;
+        transition: all ease 0.3s;
+        z-index: 1;
+        font-size: 16px;
+        padding: 20px;
+    }
+    .flexbox {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
     </style>
 </head>
 <body class="scrollbar">
@@ -122,10 +176,13 @@
             <div class="input-group message col-xs-12">
                 <div class="toolbar">
                     <a class="btn">
-                        <span class="glyphicon glyphicon-list btn-emoji"></span>
-                    </a>   
+                        <span class="glyphicon glyphicon-star btn-emoji"></span>
+                    </a> 
                     <a class="btn">
-                        <span class="glyphicon glyphicon-list btn-video"></span>
+                        <span class="glyphicon glyphicon-music btn-audio"></span>
+                    </a>  
+                    <a class="btn">
+                        <span class="glyphicon glyphicon-facetime-video btn-video"></span>
                     </a>    
                 </div>
                 <div class="detail">
@@ -187,8 +244,14 @@
                         <span class="item">😡</span>
                         <span class="item">😠</span>
                     </div>
+                    <div id="playAudio" class="input-group">
+                        <input class="form-control" type="text" placeholder="请输入音频url">
+                        <span>
+                            <button class="btn btn-default" type="button">确定</button>
+                        </span>
+                    </div>
                     <div id="playVideo" class="input-group">
-                        <input class="form-control" type="text" placeholder="请输入url">
+                        <input class="form-control" type="text" placeholder="请输入视频url">
                         <span>
                             <button class="btn btn-default" type="button">确定</button>
                         </span>
@@ -197,6 +260,22 @@
                 <textarea class="form-control scrollbar" id="textInput"></textarea>
                 <span class="input-group-addon" id="submitBtn">post</span>
             </div>
+        </div>
+        <div class="musicbox" height="40">
+            <progress max="100"></progress>
+            <div class="flexbox">
+                <div class="control">
+                    <a id="musicPlay" class="btn glyphicon glyphicon-play"></a>
+                    <a id="musicVolume" class="btn glyphicon glyphicon-volume-down"></a>
+                    <a id="musicList" class="btn glyphicon glyphicon-th-list"></a>
+                </div>
+                <div class="music-info">正在播放：<span class="song"></span> - <span class="singer"></span></div>
+            </div>
+            <audio src="" controls autoplay></audio>
+        </div>
+        <div class="music-list scrollbar">
+            <p>播放列表</p>
+            <ul></ul>
         </div>
         <div class="btn btn-leave glyphicon glyphicon-menu-left" title="离开"></div>
     </div>
@@ -242,6 +321,18 @@
         let $player = $('.player video');
         let player = $player[0];
         let $modal = $('.modal');
+
+        let $btnMusicList = $('#musicList');
+        let $btnMusicPlay = $('#musicPlay');
+        let $btnMusicVolume = $('#musicVolume');
+        let $musicList = $('.music-list');
+        let $btnPlayAudio = $('#playAudio button');
+        let $audioUrl = $('#playAudio input');
+        let $song = $('.musicbox .song');
+        let $singer = $('.musicbox .singer');
+        let $audio = $('.musicbox audio');
+        let progress = $('.musicbox progress')[0];
+
         // 获取url中的参数
         let url = location.href;
         let roomId = '';
@@ -281,7 +372,7 @@
                             console.log(111, username, room.username)
                             // 获取权限
                             if (username !== room.username) {
-                                $toolbar.children('a').eq(1).css({
+                                $toolbar.children('a').eq(2).css({
                                     'visibility': 'hidden'
                                 })
                                 $player.removeAttr('controls');
@@ -301,9 +392,6 @@
             }
         )
                 
-
-
- 
         // 工具栏
         $toolbar.click(e => {
             let dom = e.target;
@@ -341,12 +429,85 @@
             $videoUrl.val("");
             let video = $player[0]
             video.onplay = function() {
-                console.log('paly')
                 let currTime = video.currentTime;
                 socket.emit('startPlay', roomId, video.src, currTime)
                 video.onplay = null;
             }
         })
+        // 音频
+        $btnPlayAudio.click(() => {
+            let url;
+            if (url = $audioUrl.val()) {
+                if (url.search('music.163.com')) {
+                    let index = url.search('id=') + 3;
+                    let id = url.substring(index);
+                    new Promise(resolve => {
+                        $.get(`https://api.imjad.cn/cloudmusic/?id=${id}&type=detail`)
+                        .done(
+                            data => {
+                                resolve(data);
+                            }
+                        )
+                    }).then(
+                        data => { 
+                            let duration;
+                            $song.html(data.songs[0].name);
+                            $singer.html(data.songs[0].ar[0].name);
+                            $audio.attr('src', `https://music.163.com/song/media/outer/url?id=${id}.mp3`)
+
+                            $audio[0].onplay = () => {
+                                let currTime = $audio[0].currentTime;
+                                duration = $audio[0].duration;
+                                socket.emit('startPlayAudio', roomId, $audio[0].src, currTime, $song.html(), $singer.html())
+                                $audio[0].onplay = null;
+                                $btnMusicPlay.attr('playing', '')
+                                $btnMusicPlay.removeClass('glyphicon-play').addClass('glyphicon-pause');
+                            }  
+                            $audio[0].ontimeupdate = () => {
+                                progress.value = $audio[0].currentTime / duration * 100;
+                            }
+                            $audioUrl.val(""); 
+                        }
+                    )
+                } else {
+                    alert('暂不支持播放该网站的资源');
+                }
+            }
+        })
+        $btnMusicPlay.click(() => {
+            if ($btnMusicPlay.attr('playing') === undefined) {
+                $btnMusicPlay.attr('playing', '');
+                $btnMusicPlay.removeClass('glyphicon-play').addClass('glyphicon-pause');
+                $audio[0].play();
+                return;
+            }
+            $btnMusicPlay.removeAttr('playing');
+            $btnMusicPlay.removeClass('glyphicon-pause').addClass('glyphicon-play');
+            $audio[0].pause();
+        })
+        $btnMusicVolume.click(() => {
+            if ($btnMusicVolume.attr('close') === undefined) {
+                $btnMusicVolume.attr('close', '')
+                $btnMusicVolume.removeClass('glyphicon-volume-down').addClass('glyphicon-volume-off');
+                $audio[0].volume = 0;
+                return;
+            }
+            $btnMusicVolume.removeAttr('close');
+            $btnMusicVolume.removeClass('glyphicon-volume-off').addClass('glyphicon-volume-down');
+            $audio[0].volume = 1;
+        })
+        $btnMusicList.click(() => {
+            if ($musicList.attr('show') === undefined) {
+                $musicList.attr('show', '');
+                $musicList.css('bottom', '46px');
+                return;
+            } 
+            $musicList.removeAttr('show');
+            $musicList.css('bottom', '-200px');
+        })
+
+
+
  
         // 监听用户进入
         socket.on('userEnter', (id, arr, newUsername) => {
@@ -356,6 +517,7 @@
             }   
             if (username === room.username && player.src != '') {
                 socket.emit('currentVideo', roomId, newUsername, player.src, player.currentTime);
+                socket.emit('currentAudio', roomId, newUsername, $audio[0].src, $audio[0].currentTime, $song.html(), $singer.html());
             }
         })
         // 监听用户离开
@@ -368,7 +530,6 @@
         // 监听视频开始
         socket.on('videoPlayStart', (id, url, currTime) => {
             if (id === roomId && username !== room.username) {
-                console.log(url, currTime);
                 $player.attr('src', url);
                 $player[0].currentTime = currTime;
             }
@@ -378,6 +539,36 @@
             if (id === roomId && name === username) {
                 $player.attr('src', url);
                 player.currentTime = currTime;
+            }
+        })
+        // 监听音频开始
+        socket.on('audioPlayStart', (id, url, currTime, song, singer) => {
+            if (id === roomId) {
+                console.log(url, currTime);
+                $audio.attr('src', url);
+                $audio[0].currentTime = currTime;
+                $song.html(song);
+                $singer.html(singer);
+            }
+        })
+        // 监听服务器发送的当前音频信息
+        socket.on('audioCurrentTime', (id, name, url, currTime, song, singer) => {
+            if (id === roomId && name === username) {
+                $audio.attr('src', url);
+                $audio[0].currentTime = currTime;
+                $song.html(song);
+                $singer.html(singer);
+                let duration;
+                $audio[0].onplaying = () => {
+                    duration = $audio[0].duration;
+                    console.log(duration);
+                    $audio[0].onplaying = null;
+                    $btnMusicPlay.attr('playing', '')
+                    $btnMusicPlay.removeClass('glyphicon-play').addClass('glyphicon-pause');
+                }
+                $audio[0].ontimeupdate = () => {
+                    progress.value = $audio[0].currentTime / duration * 100;
+                }
             }
         })
 
